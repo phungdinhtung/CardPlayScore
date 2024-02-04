@@ -6,7 +6,7 @@ export const useLocalPlayersAndScores = () => {
 	const [playerLocal] = useLocalStorage<Player[]>('players', []);
 	const [roundLocal, setRoundLocal] = useLocalStorage<Round[]>('rounds', []);
 
-	const [player, setPlayer] = useState<Player[]>([]);
+	const [players, setPlayer] = useState<Player[]>([]);
 	const [roundScores, setRoundScores] = useState<Round[]>([]);
 
 	useEffect(() => {
@@ -15,7 +15,7 @@ export const useLocalPlayersAndScores = () => {
 	}, []);
 
 	return {
-		player,
+		players,
 		roundLocal,
 		setRoundLocal,
 		roundScores,

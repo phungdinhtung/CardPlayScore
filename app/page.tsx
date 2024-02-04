@@ -20,6 +20,7 @@ export default function Home() {
 	return (
 		<main className='flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-300'>
 			<span> Cờ bạc Định Công</span>
+			<span> Bấm vào lá bài để bắt đầu chiến</span>
 			<Dialog>
 				<DialogTrigger>
 					<Image className='animate-bounce' src='/poker.png' alt='Next.js Logo' width={100} height={37} priority />

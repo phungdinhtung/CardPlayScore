@@ -11,9 +11,16 @@ import { Round, ScorePlayer } from '@/type';
 import { omit, sum } from 'lodash';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { GroupScore } from './GroupScore';
+import { GroupBonusRadio } from './BonusRadio';
 
-export const Score = ({ roundScores, setRoundScores }: { roundScores: Round[]; setRoundScores: Dispatch<SetStateAction<Round[]>> }) => {
-	const { player, setRoundLocal } = useLocalPlayersAndScores();
+export const Score = ({
+	roundScores,
+	setRoundScores,
+}: {
+	roundScores: Round[];
+	setRoundScores: Dispatch<SetStateAction<Round[]>>;
+}) => {
+	const { players, setRoundLocal } = useLocalPlayersAndScores();
 	const [scoreRound, setScoreRound] = useState<ScorePlayer>({});
 
 	const winMoney = Math.abs(sum(Object.values(scoreRound)));
@@ -25,23 +32,25 @@ export const Score = ({ roundScores, setRoundScores }: { roundScores: Round[]; s
 			}}
 		>
 			<DialogTrigger asChild>
-				<Button variant='destructive'>Tính tiền</Button>
+				<Button variant='secondary'>Tính tiền (Auto)</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Xin tiền</DialogTitle>
+					<DialogTitle>Tính tiền (Auto)</DialogTitle>
 				</DialogHeader>
 				<section className='space-y-4'>
-					{player?.map((player) => {
+					{players?.map((player) => {
 						const key = player?.id?.toString();
+						const scorePlayer = scoreRound[`${player?.id}`];
+
 						return (
 							<div key={player?.id} className='space-y-2'>
 								<Label className='text-lg font-bold'>{player?.name}</Label>
 								<GroupScore
 									// @ts-ignore: Unreachable code error
-									value={scoreRound[`${player?.id}`]?.toString() || null}
+									value={scorePlayer?.toString() || null}
 									onValueChange={(value) => {
-										Object.keys(scoreRound)?.length < 3 &&
+										(Object.hasOwn(scoreRound, key) || Object.keys(scoreRound)?.length < 3) &&
 											setScoreRound({
 												...scoreRound,
 												[key]: parseInt(value),
@@ -49,22 +58,41 @@ export const Score = ({ roundScores, setRoundScores }: { roundScores: Round[]; s
 									}}
 								/>
 								<div className='grid grid-cols-3 items-center gap-2'>
-									<Input type='number' />
+									<div>
+										<Input
+											disabled={!Object.hasOwn(scoreRound, key) && Object.keys(scoreRound)?.length >= 3}
+											value={scorePlayer || ''}
+											onChange={(e) => {
+												if (e?.target?.value) {
+													(Object.hasOwn(scoreRound, key) || Object.keys(scoreRound)?.length < 3) &&
+														setScoreRound({
+															...scoreRound,
+															[key]: parseInt(e?.target?.value),
+														});
+												} else {
+													const newObject = omit(scoreRound, key);
+													setScoreRound(newObject);
+												}
+											}}
+											type='number'
+										/>
+										{scorePlayer > 0 && <span className='text-red-600'> Điền số âm !</span>}
+									</div>
 									<Button
+										disabled={!Object.hasOwn(scoreRound, key) && Object.keys(scoreRound)?.length >= 3}
 										onClick={() => {
 											const newObject = omit(scoreRound, key);
 											setScoreRound(newObject);
 										}}
 									>
-										Nhầm
+										Xóa
 									</Button>
 									<span>
 										Tổng tiền :
 										<span className=' bg-yellow-200'>
-											{Object.keys(scoreRound)?.length === 3 &&
-											!Object.hasOwn(scoreRound, key)
+											{Object.keys(scoreRound)?.length === 3 && !Object.hasOwn(scoreRound, key)
 												? winMoney
-												: scoreRound[`${player?.id}`]}
+												: scorePlayer}
 										</span>
 									</span>
 								</div>
@@ -73,6 +101,7 @@ export const Score = ({ roundScores, setRoundScores }: { roundScores: Round[]; s
 					})}
 					<DialogClose asChild>
 						<Button
+							disabled={Object.keys(scoreRound)?.length < 3 || Object.values(scoreRound).some((v) => v > 0)}
 							onClick={() => {
 								const missKey = checkMissingKeys(scoreRound, PLAYER_ID_STRING)[0];
 								const formData = [
@@ -90,7 +119,71 @@ export const Score = ({ roundScores, setRoundScores }: { roundScores: Round[]; s
 							}}
 							className='w-full'
 						>
-							Hự
+							Money
+						</Button>
+					</DialogClose>
+				</section>
+			</DialogContent>
+		</Dialog>
+	);
+};
+
+export const ScoreBonus = ({
+	roundScores,
+	setRoundScores,
+}: {
+	roundScores: Round[];
+	setRoundScores: Dispatch<SetStateAction<Round[]>>;
+}) => {
+	const { players, setRoundLocal } = useLocalPlayersAndScores();
+	const [winner, setWinner] = useState<string>('');
+
+	return (
+		<Dialog
+			onOpenChange={() => {
+				setWinner('');
+			}}
+		>
+			<DialogTrigger asChild>
+				<Button variant='secondary'>Sâm</Button>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Sâm</DialogTitle>
+				</DialogHeader>
+				<section className='space-y-4'>
+					<GroupBonusRadio
+						players={players}
+						value={winner}
+						onValueChange={(value) => {
+							setWinner(value);
+						}}
+					/>
+					<DialogClose asChild>
+						<Button
+							onClick={() => {
+								const missKey = checkMissingKeys({ [winner]: winner }, PLAYER_ID_STRING);
+								const scores: ScorePlayer = missKey.reduce((acc: ScorePlayer, number) => {
+									acc[number] = -20;
+									return acc;
+								}, {});
+								const formData = [
+									...roundScores,
+									{
+										id: roundScores?.length + 1,
+										scores: {
+											...scores,
+											[winner]: 60,
+										},
+									},
+								];
+								setRoundLocal(formData);
+								setRoundScores(formData);
+							}}
+							className='w-full'
+							disabled={!Boolean(winner)}
+						>
+							Money
 						</Button>
 					</DialogClose>
 				</section>
