@@ -51,7 +51,7 @@ export default function Counting() {
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{roundScores?.toReversed()?.map((item) => (
+					{roundScores?.map((item) => (
 						<TableRow key={item?.id} onClick={() => setSelectedId(item?.id)}>
 							<TableCell className='text-center font-bold'>{item?.scores['1']}</TableCell>
 							<TableCell className='text-center font-bold'>{item?.scores['2']}</TableCell>
