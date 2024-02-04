@@ -20,7 +20,7 @@ export default function Counting() {
 				<Button variant='secondary'>Tổng số ván : {roundScores?.length || 0}</Button>
 				<ResetDialog />
 			</div>
-			<div className='p-4 border-2 border-b-black border-t-black space-x-4'>
+			<div className='p-4 border-2 border-b-black border-t-black flex gap-2 flex-wrap'>
 				<Score roundScores={roundScores} setRoundScores={setRoundScores} />
 				<ScoreBonus roundScores={roundScores} setRoundScores={setRoundScores} />
 				<SpecialScore

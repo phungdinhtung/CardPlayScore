@@ -14,6 +14,7 @@ export const CatAvatar = () => {
 			}
 		});
 	}, []);
+	
 	return (
 		<Avatar className='m-auto w-20 h-20'>
 			<AvatarImage src={url} />
