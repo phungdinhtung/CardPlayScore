@@ -1,8 +1,20 @@
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import Head from 'next/head';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+	title: 'Cờ Bạc Định Công',
+	description: 'Web ghi bài bạc',
+};
+
+export const viewport: Viewport = {
+	width: 'device-width',
+	initialScale: 1,
+	maximumScale: 1,
+	userScalable: false,
+};
 
 export default function RootLayout({
 	children,
@@ -11,10 +23,6 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en'>
-			<Head>
-				<title>Cờ Bạc Định Công</title>
-				<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' />
-			</Head>
 			<body className={inter.className}>{children}</body>
 		</html>
 	);
